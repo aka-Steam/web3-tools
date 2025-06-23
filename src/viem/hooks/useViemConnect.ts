@@ -4,7 +4,8 @@ import { createWalletClient, custom } from 'viem';
 import { sepolia } from 'viem/chains';
 
 export const useViemConnect = () => {
-  const { state, updateState, resetWallet, lastResetTime } = useContext(WalletContext);
+//   const { state, updateState, resetWallet, lastResetTime } = useContext(WalletContext);
+  const { state, updateState, resetWallet } = useContext(WalletContext);
   const [isLoading, setIsLoading] = useState(false);
   const [metrics, setMetrics] = useState<{
     coldStart?: number;

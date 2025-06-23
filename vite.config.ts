@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(),
     visualizer({
       open: true,
-      filename: 'bundle-stats.html'
+      filename: 'reports/bundle-stats.html'
     })
   ],
   server: {

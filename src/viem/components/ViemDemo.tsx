@@ -13,6 +13,7 @@ const ViemDemo: React.FC = () => {
           onClick={() => connect(true)} 
           disabled={isLoading}
           className="btn cold"
+          data-testid="cold-connect-btn"
         >
           {isLoading ? 'Подключение...' : 'Холодное подключение'}
         </button>
@@ -21,6 +22,7 @@ const ViemDemo: React.FC = () => {
           onClick={() => connect(false)} 
           disabled={isLoading}
           className="btn warm"
+          data-testid="warm-connect-btn"
         >
           {isLoading ? 'Подключение...' : 'Теплое подключение'}
         </button>

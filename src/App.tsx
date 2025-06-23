@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import EthersDemo from './ethers/components/EthersDemo';
 import ViemDemo from './viem/components/ViemDemo';
 import ResetWalletButton from './common/ResetWalletButton';

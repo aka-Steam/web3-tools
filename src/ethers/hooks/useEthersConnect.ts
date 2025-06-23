@@ -3,7 +3,8 @@ import { WalletContext } from '../../common/WalletContext';
 import { BrowserProvider } from 'ethers';
 
 export const useEthersConnect = () => {
-  const { state, updateState, resetWallet, lastResetTime } = useContext(WalletContext);
+//   const { state, updateState, resetWallet, lastResetTime } = useContext(WalletContext);
+  const { state, updateState, resetWallet } = useContext(WalletContext);
   const [isLoading, setIsLoading] = useState(false);
   const [metrics, setMetrics] = useState<{
     coldStart?: number;
