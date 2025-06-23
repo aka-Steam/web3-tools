@@ -6,11 +6,11 @@ import chalk from 'chalk';
 const CONFIG = {
   appUrl: 'http://localhost:3000',
   iterations: 5,
-  outputFile: 'performance-results.csv',
+  outputFile: 'reports/performance-results.csv',
   tests: [
     { name: 'cold-start', selector: '.btn.cold', reset: true },
     { name: 'warm-start', selector: '.btn.warm', reset: false },
-    // { name: 'sign-transaction', selector: '.btn.sign', reset: false }
+    { name: 'sign-transaction', selector: '.btn.sign', reset: false }
   ],
   implementations: [
     { name: 'ethers', tabText: 'Ethers.js' },
@@ -21,6 +21,30 @@ const CONFIG = {
 async function runPerformanceTests() {
   const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
+  
+  // Мокаем window.ethereum для автотестов
+  await page.evaluateOnNewDocument(() => {
+    window.ethereum = {
+      isMetaMask: true,
+      request: async ({ method, params }) => {
+        if (method === 'eth_requestAccounts') {
+          return ['0x1111111111111111111111111111111111111111'];
+        }
+        if (method === 'personal_sign' || method === 'eth_sign' || method === 'eth_signTypedData_v4') {
+          return '0x' + 'a'.repeat(130);
+        }
+        if (method === 'eth_chainId') {
+          return '0x1';
+        }
+        if (method === 'eth_accounts') {
+          return ['0x1111111111111111111111111111111111111111'];
+        }
+        return null;
+      },
+      on: () => {},
+      removeListener: () => {},
+    };
+  });
   
   // Результаты будут храниться здесь
   const results = [];

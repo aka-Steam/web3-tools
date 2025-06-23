@@ -2,7 +2,7 @@ import React from 'react';
 import { useViemConnect } from '../hooks/useViemConnect';
 
 const ViemDemo: React.FC = () => {
-  const { connect, isLoading, metrics, accounts } = useViemConnect();
+  const { connect, isLoading, metrics, accounts, signTransaction } = useViemConnect();
   
   return (
     <div className="demo">
@@ -26,6 +26,14 @@ const ViemDemo: React.FC = () => {
         >
           {isLoading ? 'Подключение...' : 'Теплое подключение'}
         </button>
+        <button
+          onClick={signTransaction}
+          disabled={isLoading || !accounts.length}
+          className="btn sign"
+          data-testid="sign-btn"
+        >
+          {isLoading ? 'Подпись...' : 'Подписать транзакцию'}
+        </button>
       </div>
       
       {accounts.length > 0 && (
@@ -46,6 +54,12 @@ const ViemDemo: React.FC = () => {
           <div className="metric">
             <h4>Теплое подключение:</h4>
             <p>{metrics.warmStart.toFixed(2)} мс</p>
+          </div>
+        )}
+        {metrics.sign && (
+          <div className="metric">
+            <h4>Подпись транзакции:</h4>
+            <p>{metrics.sign.toFixed(2)} мс</p>
           </div>
         )}
       </div>

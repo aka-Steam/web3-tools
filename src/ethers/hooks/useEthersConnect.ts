@@ -9,6 +9,7 @@ export const useEthersConnect = () => {
   const [metrics, setMetrics] = useState<{
     coldStart?: number;
     warmStart?: number;
+    sign?: number;
   }>({});
 
   const connect = async (isColdStart: boolean) => {
@@ -42,10 +43,30 @@ export const useEthersConnect = () => {
     }
   };
 
+  const signTransaction = async () => {
+    setIsLoading(true);
+    try {
+      const startTime = performance.now();
+      if (!window.ethereum) throw new Error('Кошелек не обнаружен');
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      // Подписываем простое сообщение (можно заменить на signTransaction, если нужно)
+      const signature = await signer.signMessage('Performance test');
+      const duration = performance.now() - startTime;
+      setMetrics(prev => ({ ...prev, sign: duration }));
+      return { signature, duration };
+    } catch (error) {
+      console.error('Ethers sign error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     connect,
     isLoading,
     metrics,
-    accounts: state.accounts
+    accounts: state.accounts,
+    signTransaction
   };
 };

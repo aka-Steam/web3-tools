@@ -10,6 +10,7 @@ export const useViemConnect = () => {
   const [metrics, setMetrics] = useState<{
     coldStart?: number;
     warmStart?: number;
+    sign?: number;
   }>({});
 
   const connect = async (isColdStart: boolean) => {
@@ -47,10 +48,33 @@ export const useViemConnect = () => {
     }
   };
 
+  const signTransaction = async () => {
+    setIsLoading(true);
+    try {
+      const startTime = performance.now();
+      if (!window.ethereum) throw new Error('Кошелек не обнаружен');
+      const walletClient = createWalletClient({
+        chain: sepolia,
+        transport: custom(window.ethereum)
+      });
+      const [address] = await walletClient.getAddresses();
+      // Подписываем простое сообщение (можно заменить на signTransaction, если нужно)
+      const signature = await walletClient.signMessage({ account: address, message: 'Performance test' });
+      const duration = performance.now() - startTime;
+      setMetrics(prev => ({ ...prev, sign: duration }));
+      return { signature, duration };
+    } catch (error) {
+      console.error('Viem sign error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     connect,
     isLoading,
     metrics,
-    accounts: state.accounts
+    accounts: state.accounts,
+    signTransaction
   };
 };
