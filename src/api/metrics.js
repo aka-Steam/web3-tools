@@ -2,6 +2,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { exec } from 'child_process';
 
 const router = express.Router();
 const resultsPath = path.join(__dirname, 'performance-results.csv');
@@ -36,6 +37,16 @@ router.post('/results', (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to save results' });
   }
+});
+
+// Новый эндпоинт для запуска тестов
+router.post('/run-tests', (req, res) => {
+  exec('node tests/performance.test.js', { cwd: process.cwd() }, (error, stdout, stderr) => {
+    if (error) {
+      return res.status(500).json({ error: stderr || error.message });
+    }
+    res.json({ success: true, output: stdout });
+  });
 });
 
 export default router;

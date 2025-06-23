@@ -2,10 +2,11 @@ import { useState } from 'react';
 import EthersDemo from './ethers/components/EthersDemo';
 import ViemDemo from './viem/components/ViemDemo';
 import ResetWalletButton from './common/ResetWalletButton';
+import PerformanceReport from './common/PerformanceReport';
 import './App.scss';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'ethers' | 'viem'>('ethers');
+  const [activeTab, setActiveTab] = useState<'ethers' | 'viem' | 'report'>('ethers');
 
   return (
     <div className="app">
@@ -27,11 +28,18 @@ function App() {
         >
           Viem
         </button>
+        <button
+          className={`tab ${activeTab === 'report' ? 'active' : ''}`}
+          onClick={() => setActiveTab('report')}
+        >
+          Отчет
+        </button>
       </div>
 
       <div className="demo-container">
         {activeTab === 'ethers' && <EthersDemo />}
         {activeTab === 'viem' && <ViemDemo />}
+        {activeTab === 'report' && <PerformanceReport />}
       </div>
     </div>
   );
