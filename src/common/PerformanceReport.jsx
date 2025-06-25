@@ -101,4 +101,5 @@ const PerformanceReport = () => {
   );
 };
 
+// @ts-ignore
 export default PerformanceReport;
