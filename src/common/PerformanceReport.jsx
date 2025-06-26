@@ -5,7 +5,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'rec
 
 const PerformanceReport = () => {
   const [reportData, setReportData] = useState([]);
+  const [isAddressData, setIsAddressData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingIsAddress, setIsLoadingIsAddress] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [runError, setRunError] = useState(null);
 
@@ -41,6 +43,33 @@ const PerformanceReport = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchIsAddressData = async () => {
+      try {
+        const response = await fetch('/reports/isAddress-benchmark.csv');
+        const csvText = await response.text();
+        const data = csvText.split('\n')
+          .slice(1)
+          .filter(row => row.trim())
+          .map(row => {
+            const [mode, implementation, duration] = row.split(',');
+            return {
+              mode,
+              implementation,
+              duration: parseFloat(duration)
+            };
+          })
+          .filter(row => !isNaN(row.duration) && row.implementation && row.mode);
+        setIsAddressData(data);
+      } catch (error) {
+        console.error('Error loading isAddress benchmark:', error);
+      } finally {
+        setIsLoadingIsAddress(false);
+      }
+    };
+    fetchIsAddressData();
+  }, []);
+
   const runTests = async () => {
     setIsRunning(true);
     setRunError(null);
@@ -71,6 +100,18 @@ const PerformanceReport = () => {
     return entry;
   });
 
+  // График для isAddress
+  let isAddressChartData = [];
+  if (!isLoadingIsAddress && isAddressData.length) {
+    // Группируем по mode
+    const grouped = {};
+    isAddressData.forEach(row => {
+      if (!grouped[row.mode]) grouped[row.mode] = {};
+      grouped[row.mode][row.implementation] = row.duration;
+    });
+    isAddressChartData = Object.entries(grouped).map(([mode, impls]) => ({ mode, ...impls }));
+  }
+
   return (
     <div className="performance-report">
       <h2>Отчет о производительности</h2>
@@ -88,6 +129,23 @@ const PerformanceReport = () => {
           <Bar key={impl} dataKey={impl} name={impl} fill={impl === 'ethers' ? '#8884d8' : '#82ca9d'} />
         ))}
       </BarChart>
+
+      {/* Новый график для isAddress */}
+      <h3>Сравнение производительности isAddress (100 000 итераций)</h3>
+      {isLoadingIsAddress ? (
+        <div>Загрузка данных isAddress...</div>
+      ) : (
+        <BarChart width={600} height={300} data={isAddressChartData} style={{marginBottom: 24}}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="mode" />
+          <YAxis label={{ value: 'Время (мс)', angle: -90, position: 'insideLeft' }} />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="ethers" name="ethers" fill="#8884d8" />
+          <Bar dataKey="viem" name="viem" fill="#82ca9d" />
+        </BarChart>
+      )}
+
       <div className="download-section">
         <a 
           href="/api/metrics/results" 
